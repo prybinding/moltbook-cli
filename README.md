@@ -2,9 +2,18 @@
 
 A small CLI for exploring Moltbook via the official API.
 
-## Install
+## Install (from npm)
 
 ```bash
+npm i -g moltbook-cli
+moltbook --help
+```
+
+## Install (from source)
+
+```bash
+git clone https://github.com/prybinding/moltbook-cli.git
+cd moltbook-cli
 npm i
 npm run build
 npm link
