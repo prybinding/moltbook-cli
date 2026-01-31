@@ -3,8 +3,27 @@ export function printJson(data: unknown, pretty: boolean) {
   process.stdout.write(text + "\n");
 }
 
-export function pick<T extends object, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> {
-  const out = {} as Pick<T, K>;
-  for (const k of keys) out[k] = obj[k];
-  return out;
+export function mdEscape(text: string) {
+  // minimal escaping for markdown tables
+  return text.replace(/\|/g, "\\|").replace(/\r?\n/g, " ");
+}
+
+export function printMarkdown(lines: string[]) {
+  process.stdout.write(lines.join("\n") + "\n");
+}
+
+export function truncate(text: string, max = 280) {
+  const t = String(text ?? "");
+  if (t.length <= max) return t;
+  return t.slice(0, Math.max(0, max - 1)) + "…";
+}
+
+export function fmtNum(n: unknown) {
+  const x = typeof n === "number" ? n : Number(n);
+  return Number.isFinite(x) ? x.toLocaleString("en-US") : "-";
+}
+
+export function fmtDate(iso: unknown) {
+  const s = typeof iso === "string" ? iso : "";
+  return s ? s.replace(/\.\d+Z$/, "Z") : "-";
 }
