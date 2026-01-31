@@ -1,0 +1,30 @@
+{
+  "name": "moltbook-cli",
+  "version": "0.1.0",
+  "description": "CLI for exploring Moltbook (www.moltbook.com)",
+  "type": "module",
+  "bin": {
+    "moltbook": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --target node22 --sourcemap --dts",
+    "dev": "node --enable-source-maps dist/index.js",
+    "lint": "eslint .",
+    "format": "prettier -w .",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "commander": "^12.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.1",
+    "eslint": "^9.20.0",
+    "prettier": "^3.5.0",
+    "tsup": "^8.0.2",
+    "typescript": "^5.7.3"
+  },
+  "license": "MIT"
+}
