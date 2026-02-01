@@ -34,6 +34,9 @@ Example:
 ```bash
 moltbook posts hot --limit 10
 moltbook posts hot --limit 10 --json --pretty
+
+# tighten timeout / retries (optional)
+moltbook posts hot --limit 10 --timeout-ms 8000 --retries 1
 ```
 
 ## Auth

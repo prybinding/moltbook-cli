@@ -20,7 +20,9 @@ program
   .name("moltbook")
   .description("Explore Moltbook via https://www.moltbook.com/api/v1")
   .option("--json", "output raw JSON", false)
-  .option("--pretty", "pretty-print JSON (only with --json)", false);
+  .option("--pretty", "pretty-print JSON (only with --json)", false)
+  .option("--timeout-ms <n>", "HTTP timeout in ms (default: 15000 or MOLTBOOK_TIMEOUT_MS)")
+  .option("--retries <n>", "retries for transient failures (default: 2 or MOLTBOOK_RETRIES)");
 
 program
   .command("auth")
@@ -28,9 +30,13 @@ program
   .command("status")
   .description("Check your auth + claim status")
   .action(async () => {
-    const opts = program.opts<{ json: boolean; pretty: boolean }>();
+    const opts = program.opts<{ json: boolean; pretty: boolean; timeoutMs?: string; retries?: string }>();
     const apiKey = loadApiKey();
-    const data = await apiGet<any>("/agents/status", { apiKey });
+    const data = await apiGet<any>("/agents/status", {
+      apiKey,
+      timeoutMs: opts.timeoutMs ? clampInt(opts.timeoutMs, 1000, 120000) : undefined,
+      retries: opts.retries ? clampInt(opts.retries, 0, 10) : undefined,
+    });
 
     if (opts.json) {
       printJson(data, opts.pretty);
@@ -56,10 +62,14 @@ for (const sort of ["hot", "new", "top"] as const) {
     .description(`List ${sort} posts`)
     .option("--limit <n>", "number of posts", "10")
     .action(async (cmdOpts: { limit: string }) => {
-      const opts = program.opts<{ json: boolean; pretty: boolean }>();
+      const opts = program.opts<{ json: boolean; pretty: boolean; timeoutMs?: string; retries?: string }>();
       const apiKey = loadApiKey();
       const limit = clampInt(cmdOpts.limit, 1, 50);
-      const data = await apiGet<PostsResponse>(`/posts?sort=${sort}&limit=${limit}`, { apiKey });
+      const data = await apiGet<PostsResponse>(`/posts?sort=${sort}&limit=${limit}`, {
+        apiKey,
+        timeoutMs: opts.timeoutMs ? clampInt(opts.timeoutMs, 1000, 120000) : undefined,
+        retries: opts.retries ? clampInt(opts.retries, 0, 10) : undefined,
+      });
 
       if (opts.json) {
         printJson(data, opts.pretty);
@@ -94,9 +104,13 @@ posts
   .description("Get a post by id")
   .argument("<postId>")
   .action(async (postId: string) => {
-    const opts = program.opts<{ json: boolean; pretty: boolean }>();
+    const opts = program.opts<{ json: boolean; pretty: boolean; timeoutMs?: string; retries?: string }>();
     const apiKey = loadApiKey();
-    const data = await apiGet<any>(`/posts/${encodeURIComponent(postId)}`, { apiKey });
+    const data = await apiGet<any>(`/posts/${encodeURIComponent(postId)}`, {
+      apiKey,
+      timeoutMs: opts.timeoutMs ? clampInt(opts.timeoutMs, 1000, 120000) : undefined,
+      retries: opts.retries ? clampInt(opts.retries, 0, 10) : undefined,
+    });
 
     if (opts.json) {
       printJson(data, opts.pretty);
@@ -133,13 +147,17 @@ program
   .option("--sort <top|new|controversial>", "sort order", "top")
   .option("--limit <n>", "max comments (client-side slice)", "20")
   .action(async (postId: string, cmdOpts: { sort: string; limit: string }) => {
-    const opts = program.opts<{ json: boolean; pretty: boolean }>();
+    const opts = program.opts<{ json: boolean; pretty: boolean; timeoutMs?: string; retries?: string }>();
     const apiKey = loadApiKey();
     const sort = String(cmdOpts.sort || "top");
     const limit = clampInt(cmdOpts.limit, 1, 200);
     const data = await apiGet<any>(
       `/posts/${encodeURIComponent(postId)}/comments?sort=${encodeURIComponent(sort)}`,
-      { apiKey }
+      {
+        apiKey,
+        timeoutMs: opts.timeoutMs ? clampInt(opts.timeoutMs, 1000, 120000) : undefined,
+        retries: opts.retries ? clampInt(opts.retries, 0, 10) : undefined,
+      }
     );
 
     // Best-effort slice when response shape is {comments:[...]}
@@ -183,7 +201,7 @@ program
   .option("--type <all|posts|comments>", "search type", "all")
   .option("--limit <n>", "max results", "10")
   .action(async (query: string, cmdOpts: { type: string; limit: string }) => {
-    const opts = program.opts<{ json: boolean; pretty: boolean }>();
+    const opts = program.opts<{ json: boolean; pretty: boolean; timeoutMs?: string; retries?: string }>();
     const apiKey = loadApiKey();
     const type = String(cmdOpts.type || "all");
     const limit = clampInt(cmdOpts.limit, 1, 50);
@@ -191,7 +209,11 @@ program
     const q = encodeURIComponent(query);
     const data = await apiGet<any>(
       `/search?q=${q}&type=${encodeURIComponent(type)}&limit=${limit}`,
-      { apiKey }
+      {
+        apiKey,
+        timeoutMs: opts.timeoutMs ? clampInt(opts.timeoutMs, 1000, 120000) : undefined,
+        retries: opts.retries ? clampInt(opts.retries, 0, 10) : undefined,
+      }
     );
 
     if (opts.json) {

@@ -1,6 +1,6 @@
 {
   "name": "moltbook-cli",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "CLI for exploring Moltbook (www.moltbook.com)",
   "type": "module",
   "bin": {
